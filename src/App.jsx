@@ -16,7 +16,7 @@ function Coin() {
 
     <button className='coin' onClick={handleClick}>
       <h2> {count} </h2>
-      <img  src="/img/coin.jpg" alt="Описание изображения"/>
+      <img  src="/img/coin.jpg"/>
     </button>
 
   );
