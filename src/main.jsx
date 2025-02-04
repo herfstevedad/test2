@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 
-import { init, miniApp } from '@telegram-apps/sdk';
+import { init, miniApp, mainButton, shareURL } from '@telegram-apps/sdk';
 
 
 const initializeTelegramSDK = async () => {
@@ -22,6 +22,7 @@ const initializeTelegramSDK = async () => {
     console.error('Ошибка инициализации:', error);
   }
 };
+
 
 
 initializeTelegramSDK();
