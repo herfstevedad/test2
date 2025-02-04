@@ -1,149 +1,106 @@
-import React, { useReducer, useEffect } from 'react';
-import './App.css';
+import { useState, useEffect } from 'react';
 
+const ClickerGame = () => {
+  // Состояние для монет и силы клика
+  const [coins, setCoins] = useState(0);
+  const [clickPower, setClickPower] = useState(1);
+  const [autoClickers, setAutoClickers] = useState(0);
+  const [upgradeCost, setUpgradeCost] = useState(50);
+  const [autoClickerCost, setAutoClickerCost] = useState(10);
 
-const generateDeck = () => {
-  const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#FF69B4', '#8A2BE2'];
-  const deck = [];
-  // Каждому цвету добавляем две карточки
-  for (let color of colors) {
-    deck.push({ color, matched: false });
-    deck.push({ color, matched: false });
+  // Загрузка сохранения
+useEffect(() => {
+  const saved = JSON.parse(localStorage.getItem('clickerSave'));
+  if (saved) {
+    setCoins(saved.coins);
+    setClickPower(saved.clickPower);
+    // ... остальные состояния
   }
-  // Перемешиваем колоду
-  return deck.sort(() => Math.random() - 0.5);
-};
+}, []);
 
+// Сохранение прогресса
+useEffect(() => {
+  const saveData = {
+    coins,
+    clickPower,
+    autoClickers,
+    upgradeCost,
+    autoClickerCost
+  };
+  localStorage.setItem('clickerSave', JSON.stringify(saveData));
+}, [coins, clickPower, autoClickers]);
 
-const initialState = {
-  deck: generateDeck(),
-  flipped: [],
-  matched: [],
-  turns: 0,
-  score: 0,
-  pendingReset: false,
-  gameOver: false,
-};
-
-
-const gameReducer = (state, action) => {
-  switch (action.type) {
-    case 'FLIP_CARD':
-      // Переворачиваем карточку
-      if (state.flipped.length < 2 && !state.flipped.includes(action.index) && !state.matched.includes(state.deck[action.index].color)) {
-        return { ...state, flipped: [...state.flipped, action.index] };
-      }
-      return state;
-    case 'CHECK_MATCH':
-      // Проверяем совпадение перевернутых карточек
-      const [first, second] = state.flipped;
-      if (state.deck[first].color === state.deck[second].color) {
-        const newMatched = [...state.matched, state.deck[first].color];
-        const isGameOver = newMatched.length === state.deck.length / 2;
-        return {
-          ...state,
-          matched: newMatched,
-          score: isGameOver ? state.score + 1 : state.score,
-          flipped: [],
-          pendingReset: false,
-          gameOver: isGameOver,
-        };
-      } else {
-        return { ...state, pendingReset: true };
-      }
-    case 'RESET_FLIPPED':
-      // Сбрасываем перевернутые карточки
-      return { ...state, flipped: [], pendingReset: false };
-    case 'INCREMENT_TURN':
-      // Увеличиваем счетчик попыток
-      return { ...state, turns: state.turns + 1 };
-    case 'RESET_GAME':
-      // Сбрасываем состояние игры
-      return {
-        ...initialState,
-        deck: generateDeck(),
-      };
-    default:
-      return state;
-  }
-};
-
-
-const App = () => {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
-
-
-  // Проверка на совпадение перевернутых карточек
+  // Автокликеры
   useEffect(() => {
-    if (state.flipped.length === 2) {
-      dispatch({ type: 'CHECK_MATCH' });
-      dispatch({ type: 'INCREMENT_TURN' });
-    }
-  }, [state.flipped]);
-
-
-  // Таймер для сброса перевернутых карточек
-  useEffect(() => {
-    if (state.pendingReset) {
-      const timer = setTimeout(() => {
-        dispatch({ type: 'RESET_FLIPPED' });
+    if (autoClickers > 0) {
+      const interval = setInterval(() => {
+        setCoins(prev => prev + autoClickers);
       }, 1000);
-      return () => clearTimeout(timer);
+      return () => clearInterval(interval);
     }
-  }, [state.pendingReset]);
+  }, [autoClickers]);
 
+  // Обработчик клика
+  const handleClick = () => {
+    setCoins(prev => prev + clickPower);
+  };
 
-  // Обработка клика на карточку
-  const handleCardClick = (index) => {
-    if (!state.gameOver && state.flipped.length < 2 && !state.flipped.includes(index)) {
-      dispatch({ type: 'FLIP_CARD', index });
+  // Покупка улучшения
+  const buyUpgrade = () => {
+    if (coins >= upgradeCost) {
+      setClickPower(prev => prev + 1);
+      setCoins(prev => prev - upgradeCost);
+      setUpgradeCost(prev => prev + 50);
     }
   };
 
-
-  const handlePlayAgain = () => {
-    dispatch({ type: 'RESET_GAME' });
+  // Покупка автокликера
+  const buyAutoClicker = () => {
+    if (coins >= autoClickerCost) {
+      setAutoClickers(prev => prev + 1);
+      setCoins(prev => prev - autoClickerCost);
+      setAutoClickerCost(prev => Math.ceil(prev * 1.5));
+    }
   };
 
+  // Форматирование чисел
+  const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   return (
-    <div className="App">
-      <h1>Memory Game</h1>
-      <div className="info">
-        <p>Очки: {state.score}</p>
-        <p>Попытки: {state.turns}/15</p>
+    <div className="game-container">
+      <h1>Монеты: {formatNumber(coins)}</h1>
+      
+      <button 
+        className="click-button"
+        onClick={handleClick}
+      >
+        Кликай! (+{clickPower})
+      </button>
+
+      <div className="shop">
+        <h2>Магазин</h2>
+        
+        <button 
+          className="upgrade-button"
+          onClick={buyUpgrade}
+          disabled={coins < upgradeCost}
+        >
+          Улучшение клика ({formatNumber(upgradeCost)} монет)
+        </button>
+
+        <button 
+          className="autoclicker-button"
+          onClick={buyAutoClicker}
+          disabled={coins < autoClickerCost}
+        >
+          Купить автокликер ({formatNumber(autoClickerCost)} монет) ⟳ {autoClickers}
+        </button>
       </div>
-      <div className="deck">
-        {state.deck.map((card, index) => (
-          <div
-            key={index}
-            className={`card ${state.flipped.includes(index) || state.matched.includes(card.color) ? 'flipped show' : ''}`}
-            style={{ '--card-color': card.color }}
-            onClick={() => handleCardClick(index)}
-          />
-        ))}
-      </div>
-      {state.gameOver && (
-        <>
-          <div className="overlay" />
-          <div className="game-over">
-            <h2>Вы выиграли!</h2>
-            <button onClick={handlePlayAgain}>Заново</button>
-          </div>
-        </>
-      )}
-      {!state.gameOver && state.turns >= 15 && (
-        <>
-          <div className="overlay" />
-          <div className="game-over">
-            <h2>Игра окончена!</h2>
-            <button onClick={handlePlayAgain}>Заново</button>
-          </div>
-        </>
-      )}
     </div>
   );
 };
 
 
-export default App;
+export default ClickerGame;
