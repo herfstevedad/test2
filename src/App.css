@@ -1,5 +1,16 @@
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+  }
 
-  .game-container {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+ .game-container {
+    background-color: wheat;
     text-align: center;
     padding: 20px;
     font-family: Arial, sans-serif;
