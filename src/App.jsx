@@ -1,65 +1,69 @@
 import { useState, useEffect } from 'react';
 
 const ClickerGame = () => {
-  // Состояние для монет и силы клика
-  const [coins, setCoins] = useState(0);
-  const [clickPower, setClickPower] = useState(1);
-  const [autoClickers, setAutoClickers] = useState(0);
-  const [upgradeCost, setUpgradeCost] = useState(50);
-  const [autoClickerCost, setAutoClickerCost] = useState(10);
-
-  // Загрузка сохранения
-useEffect(() => {
-  const saved = JSON.parse(localStorage.getItem('clickerSave'));
-  if (saved) {
-    setCoins(saved.coins);
-    setClickPower(saved.clickPower);
-    // ... остальные состояния
-  }
-}, []);
-
-// Сохранение прогресса
-useEffect(() => {
-  const saveData = {
-    coins,
-    clickPower,
-    autoClickers,
-    upgradeCost,
-    autoClickerCost
+  // Загрузка сохраненных данных
+  const loadSave = () => {
+    const savedData = JSON.parse(localStorage.getItem('hamsterClickerSave')) || {
+      coins: 0,
+      clickPower: 1,
+      autoClickers: 0,
+      upgradeCost: 50,
+      autoClickerCost: 10
+    };
+    return savedData;
   };
-  localStorage.setItem('clickerSave', JSON.stringify(saveData));
-}, [coins, clickPower, autoClickers]);
+
+  // Инициализация состояния из localStorage
+  const [state, setState] = useState(() => loadSave());
+
+  // Деструктурируем состояние для удобства
+  const { 
+    coins, 
+    clickPower, 
+    autoClickers, 
+    upgradeCost, 
+    autoClickerCost 
+  } = state;
+
+  // Автоматическое сохранение при любом изменении
+  useEffect(() => {
+    localStorage.setItem('hamsterClickerSave', JSON.stringify(state));
+  }, [state]);
 
   // Автокликеры
   useEffect(() => {
     if (autoClickers > 0) {
       const interval = setInterval(() => {
-        setCoins(prev => prev + autoClickers);
+        setState(prev => ({ ...prev, coins: prev.coins + prev.autoClickers }));
       }, 1000);
       return () => clearInterval(interval);
     }
   }, [autoClickers]);
 
-  // Обработчик клика
+  // Обработчики действий
   const handleClick = () => {
-    setCoins(prev => prev + clickPower);
+    setState(prev => ({ ...prev, coins: prev.coins + prev.clickPower }));
   };
 
-  // Покупка улучшения
   const buyUpgrade = () => {
     if (coins >= upgradeCost) {
-      setClickPower(prev => prev + 1);
-      setCoins(prev => prev - upgradeCost);
-      setUpgradeCost(prev => prev + 50);
+      setState(prev => ({
+        ...prev,
+        coins: prev.coins - prev.upgradeCost,
+        clickPower: prev.clickPower + 1,
+        upgradeCost: prev.upgradeCost + 50
+      }));
     }
   };
 
-  // Покупка автокликера
   const buyAutoClicker = () => {
     if (coins >= autoClickerCost) {
-      setAutoClickers(prev => prev + 1);
-      setCoins(prev => prev - autoClickerCost);
-      setAutoClickerCost(prev => Math.ceil(prev * 1.5));
+      setState(prev => ({
+        ...prev,
+        coins: prev.coins - prev.autoClickerCost,
+        autoClickers: prev.autoClickers + 1,
+        autoClickerCost: Math.ceil(prev.autoClickerCost * 1.5)
+      }));
     }
   };
 
@@ -68,14 +72,17 @@ useEffect(() => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  // Сброс прогресса
+  const resetProgress = () => {
+    localStorage.removeItem('hamsterClickerSave');
+    setState(loadSave());
+  };
+
   return (
     <div className="game-container">
       <h1>Монеты: {formatNumber(coins)}</h1>
       
-      <button 
-        className="click-button"
-        onClick={handleClick}
-      >
+      <button className="click-button" onClick={handleClick}>
         Кликай! (+{clickPower})
       </button>
 
@@ -97,10 +104,16 @@ useEffect(() => {
         >
           Купить автокликер ({formatNumber(autoClickerCost)} монет) ⟳ {autoClickers}
         </button>
+
+        <button 
+          className="reset-button"
+          onClick={resetProgress}
+        >
+          Сбросить прогресс
+        </button>
       </div>
     </div>
   );
 };
-
 
 export default ClickerGame;

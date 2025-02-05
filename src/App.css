@@ -1,42 +1,55 @@
-.game-container {
-  text-align: center;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
 
-.click-button {
-  padding: 20px 40px;
-  font-size: 24px;
-  background: gold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin: 20px;
-  transition: transform 0.1s;
-}
+  .game-container {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
 
-.click-button:active {
-  transform: scale(0.95);
-}
+  .click-button {
+    padding: 20px 40px;
+    font-size: 24px;
+    background: #FFD700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 20px;
+    transition: transform 0.1s;
+  }
 
-.shop {
-  margin-top: 40px;
-  border-top: 2px solid #ccc;
-  padding-top: 20px;
-}
+  .click-button:active {
+    transform: scale(0.95);
+  }
 
-.upgrade-button, .autoclicker-button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 20px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  .shop {
+    margin-top: 40px;
+    border-top: 2px solid #ccc;
+    padding-top: 20px;
+  }
 
-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
+  button {
+    margin: 10px auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .upgrade-button {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .autoclicker-button {
+    background: #2196F3;
+    color: white;
+  }
+
+  .reset-button {
+    background: #f44336;
+    color: white;
+  }
+
+  button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
