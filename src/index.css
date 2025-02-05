@@ -13,32 +13,73 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.game-container {
+  background-color: wheat;
+  text-align: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.click-button {
+  padding: 20px 40px;
+  font-size: 24px;
+  background: #FFD700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 20px;
+  transition: transform 0.1s;
+}
+
+.click-button:active {
+  transform: scale(0.95);
+}
+
+.shop {
+  margin-top: 40px;
+  border-top: 2px solid #ccc;
+  padding-top: 20px;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #ffff;
+  margin: 10px auto;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.upgrade-button {
+  background: #4CAF50;
+  color: white;
+}
+
+.autoclicker-button {
+  background: #2196F3;
+  color: white;
+}
+
+.reset-button {
+  background: #f44336;
+  color: white;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 @media (prefers-color-scheme: light) {
