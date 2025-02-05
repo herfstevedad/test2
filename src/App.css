@@ -7,6 +7,11 @@
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
   }
 
  .game-container {
