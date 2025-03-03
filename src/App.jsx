@@ -1,119 +1,47 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { initDataRaw, retrieveLaunchParams } from '@telegram-apps/sdk';
+import { addUserIfNotExists } from './other/addUser';
 
-const ClickerGame = () => {
-  // Загрузка сохраненных данных
-  const loadSave = () => {
-    const savedData = JSON.parse(localStorage.getItem('hamsterClickerSave')) || {
-      coins: 0,
-      clickPower: 1,
-      autoClickers: 0,
-      upgradeCost: 50,
-      autoClickerCost: 10
+function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        const initDataRaw = retrieveLaunchParams();
+        const telegramUserId = initDataRaw.tgWebAppData?.user?.id;
+        const telegramUsername = initDataRaw.tgWebAppData?.user?.username;
+
+        if (telegramUserId) {
+          const userData = {
+            username: telegramUsername || 'Unknown',
+            createdAt: new Date().toISOString(),
+          };
+          await addUserIfNotExists(telegramUserId, userData);
+        } else {
+          console.warn('User data is not available.');
+        }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+      } finally {
+        setLoading(false); // Завершение загрузки
+      }
     };
-    return savedData;
-  };
 
-  // Инициализация состояния из localStorage
-  const [state, setState] = useState(() => loadSave());
+    initApp();
+  }, []);
 
-  // Деструктурируем состояние для удобства
-  const { 
-    coins, 
-    clickPower, 
-    autoClickers, 
-    upgradeCost, 
-    autoClickerCost 
-  } = state;
-
-  // Автоматическое сохранение при любом изменении
-  useEffect(() => {
-    localStorage.setItem('hamsterClickerSave', JSON.stringify(state));
-  }, [state]);
-
-  // Автокликеры
-  useEffect(() => {
-    if (autoClickers > 0) {
-      const interval = setInterval(() => {
-        setState(prev => ({ ...prev, coins: prev.coins + prev.autoClickers }));
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [autoClickers]);
-
-  // Обработчики действий
-  const handleClick = () => {
-    setState(prev => ({ ...prev, coins: prev.coins + prev.clickPower }));
-  };
-
-  const buyUpgrade = () => {
-    if (coins >= upgradeCost) {
-      setState(prev => ({
-        ...prev,
-        coins: prev.coins - prev.upgradeCost,
-        clickPower: prev.clickPower + 1,
-        upgradeCost: prev.upgradeCost + 50
-      }));
-    }
-  };
-
-  const buyAutoClicker = () => {
-    if (coins >= autoClickerCost) {
-      setState(prev => ({
-        ...prev,
-        coins: prev.coins - prev.autoClickerCost,
-        autoClickers: prev.autoClickers + 1,
-        autoClickerCost: Math.ceil(prev.autoClickerCost * 1.5)
-      }));
-    }
-  };
-
-  // Форматирование чисел
-  const formatNumber = (num) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-
-  // Сброс прогресса
-  const resetProgress = () => {
-    localStorage.removeItem('hamsterClickerSave');
-    setState(loadSave());
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="game-container">
-      <h1>Монеты: {formatNumber(coins)}</h1>
-      
-      <button className="click-button" onClick={handleClick}>
-        Кликай! (+{clickPower})
-      </button>
-
-      <div className="shop">
-        <h2>Магазин</h2>
-        
-        <button 
-          className="upgrade-button"
-          onClick={buyUpgrade}
-          disabled={coins < upgradeCost}
-        >
-          Улучшение клика ({formatNumber(upgradeCost)} монет)
-        </button>
-
-        <button 
-          className="autoclicker-button"
-          onClick={buyAutoClicker}
-          disabled={coins < autoClickerCost}
-        >
-          Купить автокликер ({formatNumber(autoClickerCost)} монет) ⟳ {autoClickers}
-        </button>
-
-        <button 
-          className="reset-button"
-          onClick={resetProgress}
-        >
-          Сбросить прогресс
-        </button>
-      </div>
+    <div className="App">
+      <h1>Welcome to the App</h1>
+      <p>User ID: {retrieveLaunchParams().tgWebAppData?.user?.id}</p>
+      <p>Username: {retrieveLaunchParams().tgWebAppData?.user?.username}</p>
     </div>
   );
-};
+}
 
-export default ClickerGame;
+export default App;
