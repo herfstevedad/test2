@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { initDataRaw, retrieveLaunchParams } from '@telegram-apps/sdk';
 import { addUserIfNotExists } from './other/addUser';
+import './App.css';
 
 function App() {
   const [loading, setLoading] = useState(true);
