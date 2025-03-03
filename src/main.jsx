@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 
-import { init, miniApp, mainButton, shareURL } from '@telegram-apps/sdk';
+import { init, miniApp } from '@telegram-apps/sdk';
 
 
 const initializeTelegramSDK = async () => {
@@ -15,8 +15,6 @@ const initializeTelegramSDK = async () => {
     if (miniApp.ready.isAvailable()) {
       await miniApp.ready();
       console.log('Mini App готово');
-
-      miniApp.setHeaderColor('#fcb69f');
     }
 
 
@@ -24,7 +22,6 @@ const initializeTelegramSDK = async () => {
     console.error('Ошибка инициализации:', error);
   }
 };
-
 
 
 initializeTelegramSDK();
